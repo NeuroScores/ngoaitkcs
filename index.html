@@ -170,6 +170,75 @@
         #summary-table .moderate-risk {
              background-color: #fcfcfc !important; 
         }
+        /* --- RESPONSIVE DESIGN (Tối ưu cho Điện thoại) --- */
+
+@media (max-width: 768px) {
+    /* 1. Thay đổi kích thước container và padding */
+    .container {
+        padding: 15px;
+        margin: 0 10px; /* Thêm lề hai bên */
+        box-shadow: none; /* Bỏ bóng để tăng hiệu suất */
+    }
+
+    /* 2. Tối ưu hóa Thanh điều hướng (Tabs) */
+    #scale-nav {
+        /* Cho phép Tabs cuộn ngang nếu có quá nhiều mục */
+        overflow-x: scroll;
+        white-space: nowrap;
+        flex-wrap: nowrap;
+        padding-bottom: 5px; /* Thêm padding cho thanh cuộn */
+    }
+    #scale-nav a {
+        /* Thiết lập kích thước cố định để dễ chạm */
+        padding: 10px 12px;
+        font-size: 0.85em;
+        flex-shrink: 0; /* Ngăn không cho các tab bị co lại */
+        margin-right: 5px;
+    }
+    #scale-nav a.active {
+        /* Đảm bảo tab active vẫn nổi bật khi cuộn */
+        border-bottom: 2px solid white !important; 
+    }
+
+    /* 3. Đảm bảo form và input hiển thị đúng */
+    .scale-content {
+        padding: 15px;
+    }
+    .question-group label {
+        font-size: 1em;
+    }
+    .question-group span {
+        /* Tăng khoảng cách giữa các lựa chọn radio */
+        margin-bottom: 10px;
+    }
+    
+    /* 4. Tối ưu hóa Bảng Tổng Hợp */
+    #summary-table {
+        /* Buộc bảng cuộn ngang trên điện thoại nếu quá rộng */
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch; /* Tối ưu cuộn trên iOS */
+    }
+    #summary-table table {
+        width: 100%;
+        min-width: 600px; /* Đặt chiều rộng tối thiểu cho bảng */
+    }
+    #summary-table th, #summary-table td {
+        font-size: 0.85em;
+        padding: 8px;
+        white-space: normal;
+    }
+    
+    /* 5. Tối ưu hóa các nút */
+    .calculate-button, .calculate-all-button {
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 1em;
+        padding: 15px 0;
+        margin-top: 10px;
+    }
+}
     </style>
 </head>
 <body>
@@ -899,4 +968,5 @@
 
 </script>
 </body>
+
 </html>
