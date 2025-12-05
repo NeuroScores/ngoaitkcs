@@ -1,0 +1,902 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CÁC THANG ĐIỂM ÁP DỤNG GHI HỒ SƠ ĐIỀU DƯỠNG TẠI BỆNH VIỆN ĐA KHOA QUẢNG NAM</title>
+    <style>
+        /* --- CSS STYLES (THEME ĐẸP) --- */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #ecf0f1;
+            --text-color: #2c3e50;
+            --light-gray: #f9f9f9;
+            --border-color: #e0e0e0;
+            --dark-blue-text: #1a5276; /* Màu xanh đậm cho chữ trong bảng */
+            --risk-high: #e74c3c;
+            --risk-low: #27ae60;
+            --risk-moderate: #f1c40f;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 20px; 
+            background-color: var(--background-color); 
+            color: var(--text-color); 
+            line-height: 1.6;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); 
+        }
+        h2, h3 { 
+            color: var(--primary-color); 
+            border-bottom: 2px solid var(--primary-color); 
+            padding-bottom: 10px; 
+            margin-top: 5px; 
+            font-weight: 600;
+        }
+        
+        /* Cấu trúc Menu/Tabs */
+        #scale-nav { 
+            display: flex; 
+            flex-wrap: wrap; 
+            margin-bottom: 25px; 
+            border-bottom: 2px solid var(--border-color); 
+            padding-left: 0;
+            list-style: none;
+        }
+        #scale-nav a {
+            padding: 12px 18px;
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: -2px; 
+            border-radius: 6px 6px 0 0;
+        }
+        #scale-nav a:hover {
+            background-color: #f0f8ff;
+            color: var(--primary-color);
+        }
+        #scale-nav a.active {
+            border: 2px solid var(--primary-color);
+            border-bottom: 2px solid white; 
+            background-color: white;
+            color: var(--primary-color);
+        }
+
+        /* Nội dung và Form */
+        .scale-content {
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            display: none; 
+        }
+        .scale-content.active {
+            display: block;
+        }
+        
+        /* Question Group */
+        .question-group { 
+            margin-bottom: 20px; 
+            padding: 15px; 
+            background-color: var(--light-gray);
+            border-left: 4px solid var(--primary-color); 
+            border-radius: 6px; 
+        }
+        .question-group label { 
+            display: block; 
+            margin-bottom: 10px; 
+            font-weight: bold; 
+            color: var(--text-color); 
+        }
+        .question-group span { 
+            display: block; 
+            margin-left: 0; 
+            margin-bottom: 8px; 
+        }
+        .question-group select, .question-group input[type="number"] {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 5px;
+        }
+
+        /* Result Styles */
+        .result-section { 
+            margin-top: 25px; 
+            padding: 20px; 
+            border: 2px solid var(--secondary-color); 
+            border-radius: 8px; 
+            background-color: #f7fcf7;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        
+        /* Buttons */
+        .calculate-button { 
+            padding: 12px 25px; 
+            background-color: var(--secondary-color); 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin-top: 15px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .calculate-button:hover {
+            background-color: #27ae60;
+        }
+        .calculate-all-button {
+            padding: 15px 30px; 
+            background-color: var(--risk-high); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .calculate-all-button:hover {
+            background-color: #c0392b;
+        }
+        
+        /* SUMMARY TABLE STYLING - ĐƠN SẮC */
+        #summary-table { width: 100%; border-collapse: collapse; margin-top: 20px; border-radius: 8px; overflow: hidden; }
+        #summary-table th, #summary-table td { border: 1px solid var(--border-color); padding: 12px; text-align: left; color: var(--dark-blue-text); }
+        #summary-table th { background-color: var(--primary-color); color: white; font-weight: 600; }
+        
+        /* Vô hiệu hóa màu sắc rủi ro trong bảng tổng hợp */
+        #summary-table .high-risk, #summary-table .low-risk, #summary-table .moderate-risk { 
+            background-color: white !important; 
+            color: var(--dark-blue-text) !important;
+            font-weight: normal;
+        }
+        /* Riêng dòng chưa đánh giá có thể giữ màu nền nhẹ */
+        #summary-table .moderate-risk {
+             background-color: #fcfcfc !important; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align: center;">CÁC THANG ĐIỂM ÁP DỤNG GHI HỒ SƠ ĐIỀU DƯỠNG TẠI BỆNH VIỆN ĐA KHOA QUẢNG NAM</h2>
+    
+    <nav id="scale-nav">
+        <a href="#gcs" class="active">1. GCS (Tri giác)</a>
+        <a href="#edema">2. Đánh giá phù</a>
+        <a href="#nips">3. Đau NIPS (sơ sinh)</a>
+        <a href="#nrs">4. Đau NRS (dạng số)</a>
+        <a href="#morse">5. Té ngã MORSE</a>
+        <a href="#braden">6. Loét tỳ đè BRADEN</a>
+        <a href="#vip">7. Viêm tĩnh mạch VIP</a>
+        <a href="#news">8. Cảnh báo sớm NEWS</a>
+        <a href="#summary">9. Bảng tổng hợp</a>
+    </nav>
+
+    <div id="scales-content">
+        
+        <div id="gcs" class="scale-content active">
+            <h3>1. Thang điểm đánh giá tri giác GCS</h3>
+            <p>Tổng điểm GCS = Mắt + Lời nói + Vận động. (Tối đa 15, tối thiểu 3)</p>
+            <form id="gcs-form">
+                <div class="question-group">
+                    <label>Mắt:</label>
+                    <span><input type="radio" name="gcs_e" value="4" required> Mắt mở tự nhiên (4 điểm)</span>
+                    <span><input type="radio" name="gcs_e" value="3"> Mở mắt khi ra lệnh (3 điểm)</span>
+                    <span><input type="radio" name="gcs_e" value="2"> Mở mắt khi đau (2 điểm)</span>
+                    <span><input type="radio" name="gcs_e" value="1"> Không mở mắt (1 điểm)</span>
+                </div>
+                <div class="question-group">
+                    <label>Lời nói:</label>
+                    <span><input type="radio" name="gcs_v" value="5" required> Nói trả lời đúng (5 điểm)</span>
+                    <span><input type="radio" name="gcs_v" value="4"> Trả lời hạn chế (4 điểm)</span>
+                    <span><input type="radio" name="gcs_v" value="3"> Trả lời lộn xộn (3 điểm)</span>
+                    <span><input type="radio" name="gcs_v" value="2"> Không nói rõ gì (2 điểm)</span>
+                    <span><input type="radio" name="gcs_v" value="1"> Không nói (1 điểm)</span>
+                </div>
+                <div class="question-group">
+                    <label>Vận động:</label>
+                    <span><input type="radio" name="gcs_m" value="6" required> Đáp ứng đúng khi ra lệnh (6 điểm)</span>
+                    <span><input type="radio" name="gcs_m" value="5"> Đáp ứng đúng khi gây đau (5 điểm)</span>
+                    <span><input type="radio" name="gcs_m" value="4"> Co chi lại, cử động tự chủ (4 điểm)</span>
+                    <span><input type="radio" name="gcs_m" value="3"> Co cứng mất vỏ (3 điểm)</span>
+                    <span><input type="radio" name="gcs_m" value="2"> Duỗi cứng mất não (2 điểm)</span>
+                    <span><input type="radio" name="gcs_m" value="1"> Nằm yên không đáp ứng (1 điểm)</span>
+                </div>
+                <button type="button" class="calculate-button" onclick="calculateGCS()">Tính điểm GCS</button>
+                <div id="gcs-result" class="result-section" style="display: none;"></div>
+            </form>
+        </div>
+
+        <div id="edema" class="scale-content">
+            <h3>2. Thang điểm đánh giá phù</h3>
+            <p>Phân độ phù dựa trên độ sâu vết lõm và khoảng thời gian tồn tại vết lõm. Vị trí thường gặp là bọng mắt, tay, cánh tay, bàn chân, mắt cá chân và chân.</p>
+            <form id="edema-form">
+                <div class="question-group">
+                    <label>Đặc điểm vết lõm:</label>
+                    <span><input type="radio" name="edema_grade" value="1" required> 1+ : Ấn lõm < 2mm, biến mất ngay lập tức</span>
+                    <span><input type="radio" name="edema_grade" value="2"> 2+ : Ấn lõm 2-4mm, tồn tại 10-15 giây</span>
+                    <span><input type="radio" name="edema_grade" value="3"> 3+ : Ấn lõm 4-6mm, tồn tại > 1 phút</span>
+                    <span><input type="radio" name="edema_grade" value="4"> 4+ : Ấn lõm 6-8mm, tồn tại nhiều phút</span>
+                </div>
+                <button type="button" class="calculate-button" onclick="calculateEdema()">Đánh giá phù</button>
+                <div id="edema-result" class="result-section" style="display: none;"></div>
+            </form>
+        </div>
+
+        <div id="nips" class="scale-content">
+            <h3>3.1. Thang điểm đau NIPS (trẻ sơ sinh)</h3>
+            <form id="nips-form">
+                <div class="question-group">
+                    <label>1. Vẻ mặt:</label>
+                    <span><input type="radio" name="nips_face" value="0" required> 0 điểm: Cơ mặt thư giãn ("Vẻ mặt yên bình, biểu hiện trung tính")</span>
+                    <span><input type="radio" name="nips_face" value="1"> 1 điểm: Nhăn mặt ("Cơ mặt căng chặt; mặt nhăn ở trán, cằm và hàm")</span>
+                </div>
+                <div class="question-group">
+                    <label>2. Khóc:</label>
+                    <span><input type="radio" name="nips_cry" value="0" required> 0 điểm: Không khóc (Yên lặng)</span>
+                    <span><input type="radio" name="nips_cry" value="1"> 1 điểm: Rên rỉ (Rên nhẹ, ngắt quãng)</span>
+                    <span><input type="radio" name="nips_cry" value="2"> 2 điểm: Khóc dữ dội (Thét lớn, chói tai, liên tục)</span>
+                </div>
+                <div class="question-group">
+                    <label>3. Kiểu thở:</label>
+                    <span><input type="radio" name="nips_breath" value="0" required> 0 điểm: Thoải mái (Kiểu thở bình thường)</span>
+                    <span><input type="radio" name="nips_breath" value="1"> 1 điểm: Thay đổi kiểu thở (Rút lõm, không đều, nhanh hơn, nôn khan, có cơn ngưng thở)</span>
+                </div>
+                <div class="question-group">
+                    <label>4. Cử động tay:</label>
+                    <span><input type="radio" name="nips_arm" value="0" required> 0 điểm: Thoải mái/tự chủ (Không co cứng cơ, có cử động ngẫu nhiên)</span>
+                    <span><input type="radio" name="nips_arm" value="1"> 1 điểm: Co/duỗi (Cánh tay thẳng, căng cứng, co/duỗi nhanh)</span>
+                </div>
+                <div class="question-group">
+                    <label>5. Cử động chân:</label>
+                    <span><input type="radio" name="nips_leg" value="0" required> 0 điểm: Thoải mái/tự chủ (Không co cứng cơ, có cử động ngẫu nhiên)</span>
+                    <span><input type="radio" name="nips_leg" value="1"> 1 điểm: Co/duỗi (Chân thẳng, căng cứng, co/duỗi nhanh)</span>
+                </div>
+                <div class="question-group">
+                    <label>6. Trạng thái thức tỉnh:</label>
+                    <span><input type="radio" name="nips_alert" value="0" required> 0 điểm: Đang ngủ/thức (Yên lặng, yên bình, ổn định)</span>
+                    <span><input type="radio" name="nips_alert" value="1"> 1 điểm: Kích thích (Tỉnh táo, không ngừng cựa quậy và quẫy đập)</span>
+                </div>
+                <button type="button" class="calculate-button" onclick="calculateNIPS()">Tính điểm đau NIPS</button>
+                <div id="nips-result" class="result-section" style="display: none;"></div>
+            </form>
+        </div>
+
+        <div id="nrs" class="scale-content">
+            <h3>3.2. Thang điểm cường độ đau dạng số (NRS)</h3>
+            <p>Chọn mức độ đau mà bệnh nhân tự đánh giá từ 0 đến 10.</p>
+            <form id="nrs-form">
+                <div class="question-group">
+                    <label>Chọn mức điểm đau:</label>
+                    <select name="nrs_score" id="nrs_score" required>
+                        <option value="">-- Chọn --</option>
+                        <option value="0">0 - Không đau</option>
+                        <option value="1">1 - Đau rất nhẹ, hầu như không cảm nhận và nghĩ đến nó, thỉnh thoảng đau nhẹ</option>
+                        <option value="2">2 - Đau nhẹ, thỉnh thoảng đau nhói mạnh</option>
+                        <option value="3">3 - Đau làm người bệnh chú ý, mất tập trung trong công việc, vẫn có thể thích ứng với nó</option>
+                        <option value="4">4 - Đau vừa phải, bệnh nhân có thể quên đi cơn đau nếu đang làm việc</option>
+                        <option value="5">5 - Đau nhiều hơn, bệnh nhân không thể quên đau sau nhiều phút, bệnh nhân vẫn có thể làm việc</option>
+                        <option value="6">6 - Đau vừa phải nhiều hơn, ảnh hưởng đến các sinh hoạt hàng ngày, khó tập trung, ảnh hưởng đến giấc ngủ</option>
+                        <option value="7">7 - Đau nặng, ảnh hưởng đến các giác quan và hạn chế nhiều đến sinh hoạt hàng ngày của bệnh nhân</option>
+                        <option value="8">8 - Đau dữ dội, hạn chế nhiều hoạt động, cần phải nỗ lực rất nhiều</option>
+                        <option value="9">9 - Đau kinh khủng, kêu khóc, rên rỉ không kiểm soát được</option>
+                        <option value="10">10 - Đau không thể nói chuyện được, nằm liệt giường và có thể mê sảng</option>
+                    </select>
+                </div>
+                <button type="button" class="calculate-button" onclick="calculateNRS()">Đánh giá đau NRS</button>
+                <div id="nrs-result" class="result-section" style="display: none;"></div>
+            </form>
+        </div>
+
+        <div id="morse" class="scale-content">
+            <h3>4.1. Thang điểm đánh giá nguy cơ té ngã MORSE (người lớn)</h3>
+            <p>Thời điểm đánh giá: Lúc nhận bệnh, sau phẫu thuật, sau thủ thuật, tình trạng người bệnh thay đổi, sau khi bị té ngã.</p>
+            <form id="morse-form">
+                <div class="question-group">
+                    <label>1. Tiền sử té ngã:</label>
+                    <span><input type="radio" name="morse_history" value="25" required> Bị té ngã 3 tháng gần đây (25 điểm)</span>
+                    <span><input type="radio" name="morse_history" value="0"> Không té ngã (0 điểm)</span>
+                </div>
+                <div class="question-group">
+                    <label>2. Phải sử dụng hỗ trợ đi lại:</label>
+                    <span><input type="radio" name="morse_aid" value="30" required> Phải vịn bàn ghế, bờ tường để đi lại (30 điểm)</span>
+                    <span><input type="radio" name="morse_aid" value="15"> Xe lăn, nạng, người hỗ trợ (15 điểm)</span>
+                    <span><input type="radio" name="morse_aid" value="0"> Không cần hỗ trợ/đi lại bình thường (0 điểm)</span>
+                </div>
+                <div class="question-group">
+                    <label>3. Đang truyền tĩnh mạch:</label>
+                    <span><input type="radio" name="morse_iv" value="20" required> Có (20 điểm)</span>
+                    <span><input type="radio" name="morse_iv" value="0"> Không (0 điểm)</span>
+                </div>
+                <div class="question-group">
+                    <label>4. Có bệnh lý đi kèm:</label>
+                    <span><input type="radio" name="morse_comorbid" value="15" required> Có (15 điểm)</span>
+                    <span><input type="radio" name="morse_comorbid" value="0"> Không (0 điểm)</span>
+                </div>
+                <div class="question-group">
+                    <label>5. Tư thế khi di chuyển:</label>
+                    <span><input type="radio" name="morse_gait" value="20" required> Không cân bằng (20 điểm)</span>
+                    <span><input type="radio" name="morse_gait" value="10"> Yếu, nằm liệt bất động (10 điểm)</span>
+                    <span><input type="radio" name="morse_gait" value="0"> Bình thường (0 điểm)</span>
+                </div>
+                <div class="question-group">
+                    <label>6. Tinh thần:</label>
+                    <span><input type="radio" name="morse_mental" value="15" required> Quên, lú lẫn, kích thích, hôn mê (15 điểm)</span>
+                    <span><input type="radio" name="morse_mental" value="0"> Tỉnh táo, định hướng tốt (0 điểm)</span>
+                </div>
+                <button type="button" class="calculate-button" onclick="calculateMORSE()">Tính điểm nguy cơ MORSE</button>
+                <div id="morse-result" class="result-section" style="display: none;"></div>
+            </form>
+        </div>
+        
+        <div id="braden" class="scale-content">
+            <h3>5. Thang điểm đánh giá nguy cơ loét tỳ đè BRADEN</h3>
+            <form id="braden-form">
+                <div class="question-group">
+                    <label>1. Nhận thức cảm giác:</label>
+                    <span><input type="radio" name="braden_sensory" value="4" required> Không hạn chế (4 điểm)</span>
+                    <span><input type="radio" name="braden_sensory" value="3"> Hơi hạn chế (3 điểm)</span>
+                    <span><input type="radio" name="braden_sensory" value="2"> Rất hạn chế (2 điểm)</span>
+                    <span><input type="radio" name="braden_sensory" value="1"> Hạn chế hoàn toàn (1 điểm)</span>
+                </div>
+                <div class="question-group">
+                    <label>2. Da ẩm ướt:</label>
+                    <span><input type="radio" name="braden_moisture" value="4" required> Hiếm khi ẩm ướt (4 điểm)</span>
+                    <span><input type="radio" name="braden_moisture" value="3"> Thường xuyên (3 điểm)</span>
+                    <span><input type="radio" name="braden_moisture" value="2"> Thỉnh thoảng (2 điểm)</span>
+                    <span><input type="radio" name="braden_moisture" value="1"> Luôn luôn (1 điểm)</span>
+                </div>
+                <div class="question-group">
+                    <label>3. Hoạt động thể chất:</label>
+                    <span><input type="radio" name="braden_activity" value="4" required> Đi lại bình thường (4 điểm)</span>
+                    <span><input type="radio" name="braden_activity" value="3"> Đi lại ít (3 điểm)</span>
+                    <span><input type="radio" name="braden_activity" value="2"> Đi xe lăn (2 điểm)</span>
+                    <span><input type="radio" name="braden_activity" value="1"> Nằm liệt giường (1 điểm)</span>
+                </div>
+                <div class="question-group">
+                    <label>4. Vận động:</label>
+                    <span><input type="radio" name="braden_mobility" value="4" required> Không giới hạn (4 điểm)</span>
+                    <span><input type="radio" name="braden_mobility" value="3"> Giới hạn ít (3 điểm)</span>
+                    <span><input type="radio" name="braden_mobility" value="2"> Rất hạn chế (2 điểm)</span>
+                    <span><input type="radio" name="braden_mobility" value="1"> Hoàn toàn bất động (1 điểm)</span>
+                </div>
+                <div class="question-group">
+                    <label>5. Dinh dưỡng:</label>
+                    <span><input type="radio" name="braden_nutrition" value="4" required> Tốt (4 điểm)</span>
+                    <span><input type="radio" name="braden_nutrition" value="3"> Khá (3 điểm)</span>
+                    <span><input type="radio" name="braden_nutrition" value="2"> Trung bình (2 điểm)</span>
+                    <span><input type="radio" name="braden_nutrition" value="1"> Kém (1 điểm)</span>
+                </div>
+                <div class="question-group">
+                    <label>6. Ma sát và trầy xước:</label>
+                    <span><input type="radio" name="braden_friction" value="3" required> Không có nguy cơ (3 điểm)</span>
+                    <span><input type="radio" name="braden_friction" value="2"> Có nguy cơ (2 điểm)</span>
+                    <span><input type="radio" name="braden_friction" value="1"> Có vấn đề (1 điểm)</span>
+                </div>
+                <button type="button" class="calculate-button" onclick="calculateBRADEN()">Tính điểm BRADEN</button>
+                <div id="braden-result" class="result-section" style="display: none;"></div>
+            </form>
+        </div>
+
+        <div id="vip" class="scale-content">
+            <h3>6. Thang điểm đánh giá viêm tĩnh mạch VIP Score</h3>
+            <form id="vip-form">
+                <div class="question-group">
+                    <label>Dấu hiệu tại vị trí đặt kim luồn:</label>
+                    <span><input type="radio" name="vip_score" value="0" required> 0 điểm: Vị trí đặt kim luồn tĩnh mạch bình thường (Không đau/không có dấu hiệu viêm)</span>
+                    <span><input type="radio" name="vip_score" value="1"> 1 điểm: Đau hoặc đỏ nhạt gần vị trí đặt kim luồn</span>
+                    <span><input type="radio" name="vip_score" value="2"> 2 điểm: Đau + đỏ + sưng</span>
+                    <span><input type="radio" name="vip_score" value="3"> 3 điểm: Đau dọc kim luồn + đỏ + xơ chai tĩnh mạch (Induration)</span>
+                    <span><input type="radio" name="vip_score" value="4"> 4 điểm: 3 dấu hiệu trên + sờ được tĩnh mạch nơi xơ chai (Palpable venous cord)</span>
+                    <span><input type="radio" name="vip_score" value="5"> 5 điểm: 4 dấu hiệu trên + sốt</span>
+                </div>
+                <button type="button" class="calculate-button" onclick="calculateVIP()">Đánh giá VIP score</button>
+                <div id="vip-result" class="result-section" style="display: none;"></div>
+            </form>
+        </div>
+        
+        <div id="news" class="scale-content">
+            <h3>7. Thang điểm cảnh báo sớm NEWS</h3>
+            <p>Tổng điểm tối đa 21 điểm.</p>
+            <form id="news-form">
+                <div class="question-group">
+                    <label>1. Tần số thở (nhịp/phút):</label>
+                    <input type="number" id="news_rr" name="news_rr" min="0" required placeholder="Nhập số nhịp/phút (ví dụ: 18)">
+                </div>
+                <div class="question-group">
+                    <label>2. SpO2 (%):</label>
+                    <input type="number" id="news_spo2" name="news_spo2" min="0" max="100" required placeholder="Nhập % SpO2 (ví dụ: 95)">
+                </div>
+                <div class="question-group">
+                    <label>3. Thở O2:</label>
+                    <span><input type="radio" name="news_o2" value="2" required> Có thở O2 (2 điểm)</span>
+                    <span><input type="radio" name="news_o2" value="0" required> Không thở O2 (0 điểm)</span>
+                </div>
+                <div class="question-group">
+                    <label>4. Nhiệt độ (°C):</label>
+                    <input type="number" id="news_temp" name="news_temp" step="0.1" required placeholder="Nhập nhiệt độ (ví dụ: 37.0)">
+                </div>
+                <div class="question-group">
+                    <label>5. Huyết áp tâm thu (mmHg):</label>
+                    <input type="number" id="news_sbp" name="news_sbp" min="0" required placeholder="Nhập SBP (ví dụ: 120)">
+                </div>
+                <div class="question-group">
+                    <label>6. Nhịp tim (lần/phút):</label>
+                    <input type="number" id="news_hr" name="news_hr" min="0" required placeholder="Nhập nhịp tim (ví dụ: 75)">
+                </div>
+                <div class="question-group">
+                    <label>7. Mức độ ý thức (mức độ cao nhất):</label>
+                    <span><input type="radio" name="news_loc" value="0" required> Thức tỉnh (0 điểm)</span>
+                    <span><input type="radio" name="news_loc" value="3" required> Chỉ nói, đau, không đáp ứng (3 điểm)</span>
+                </div>
+                <button type="button" class="calculate-button" onclick="calculateNEWS()">Tính điểm NEWS</button>
+                <div id="news-result" class="result-section" style="display: none;"></div>
+            </form>
+        </div>
+        
+        <div id="summary" class="scale-content">
+            <h3>9. Bảng tổng hợp điểm số</h3>
+            <p>Nhấn nút **Tính toán và tổng hợp** để thu thập kết quả từ tất cả các thang điểm đã đánh giá.</p>
+            <button type="button" class="calculate-all-button" onclick="calculateAndSummarize()">Tính toán và tổng hợp</button>
+            <div id="summary-result-container"></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    
+    // --- KHAI BÁO DỮ LIỆU TOÀN CỤC ---
+    // Khởi tạo trạng thái ban đầu là 'Chưa đánh giá'
+    let calculatedScores = {
+        'GCS': { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' },
+        'Phù': { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' },
+        'Đau NIPS': { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' },
+        'Đau NRS': { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' },
+        'Té Ngã MORSE': { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' },
+        'Loét Tỳ Đè BRADEN': { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' },
+        'VIP Score': { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' },
+        'NEWS Score': { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' }
+    };
+
+    // --- LOGIC ĐIỀU HƯỚNG TABS ---
+    document.querySelectorAll('#scale-nav a').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+
+            document.querySelectorAll('.scale-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('#scale-nav a').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.getElementById(targetId).classList.add('active');
+            this.classList.add('active');
+        });
+    });
+
+    // Kích hoạt tab GCS mặc định
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('gcs').classList.add('active');
+        document.querySelector('a[href="#gcs"]').classList.add('active');
+    });
+
+    // --- HÀM HỖ TRỢ ---
+    function getRadioValue(name) {
+        const checked = document.querySelector(`input[name="${name}"]:checked`);
+        if (!checked) throw new Error(`Vui lòng chọn mục: ${name}`);
+        return parseInt(checked.value);
+    }
+    
+    // Hàm format chữ cái đầu thành viết hoa (Viết hoa chữ đầu tiên của chuỗi)
+    function capitalizeFirstLetter(string) {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    function updateResultDisplay(scaleId, scoreText, classification, action = '', riskClass = '') {
+        const resultDiv = document.getElementById(`${scaleId}-result`);
+        const finalClassification = capitalizeFirstLetter(classification);
+        const finalAction = capitalizeFirstLetter(action);
+        
+        const displayTitle = capitalizeFirstLetter(`điểm ${scaleId.toLowerCase()}`);
+        
+        // Sử dụng lớp low-risk cho action để giữ màu xanh nhạt
+        resultDiv.innerHTML = `<p><strong>${displayTitle}: ${scoreText}</strong> - ${finalClassification}</p>${action ? `<p class="low-risk">Hành động can thiệp: ${finalAction}</p>` : ''}`;
+        resultDiv.className = `result-section ${riskClass}`;
+        resultDiv.style.display = 'block';
+    }
+
+
+    // --- LOGIC TÍNH TOÁN CỦA TỪNG THANG ĐIỂM ---
+
+    // 1. GCS
+    function calculateGCS() {
+        try {
+            const e = getRadioValue('gcs_e');
+            const v = getRadioValue('gcs_v');
+            const m = getRadioValue('gcs_m');
+            const score = e + v + m;
+            
+            let classification = "";
+            let riskClass = "";
+
+            if (score === 15) {
+                classification = "bình thường";
+                riskClass = "low-risk";
+            } else if (score >= 9 && score <= 14) {
+                classification = "rối loạn ý thức";
+                riskClass = "moderate-risk";
+            } else if (score >= 6 && score <= 8) {
+                classification = "rối loạn ý thức nặng";
+                riskClass = "high-risk";
+            } else if (score >= 4 && score <= 5) {
+                classification = "hôn mê sâu";
+                riskClass = "high-risk";
+            } else if (score === 3) {
+                classification = "hôn mê rất sâu, đe doạ tính mạng";
+                riskClass = "high-risk";
+            }
+            
+            calculatedScores.GCS = { score: `${score}/15`, classification: classification, action: `E${e}V${v}M${m}` };
+            updateResultDisplay('gcs', `${score}/15`, classification, `E${e}V${v}M${m}`, riskClass);
+
+        } catch (error) {
+            calculatedScores.GCS = { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' };
+            alert("Lỗi GCS: Vui lòng chọn đầy đủ các mục!");
+        }
+    }
+
+    // 2. ĐÁNH GIÁ PHÙ
+    function calculateEdema() {
+        try {
+            const grade = getRadioValue('edema_grade');
+            let classification = `${grade}+`;
+            let time = "";
+            
+            switch(grade) {
+                case 1: time = "ấn lõm < 2mm, biến mất ngay lập tức"; break;
+                case 2: time = "ấn lõm 2-4mm, tồn tại 10-15 giây"; break;
+                case 3: time = "ấn lõm 4-6mm, tồn tại > 1 phút"; break;
+                case 4: time = "ấn lõm 6-8mm, tồn tại nhiều phút"; break;
+            }
+            
+            const actionText = `Phù ${classification}`;
+
+            calculatedScores.Phù = { score: classification, classification: time, action: actionText };
+            updateResultDisplay('edema', classification, time, actionText);
+
+        } catch (error) {
+            calculatedScores.Phù = { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' };
+            alert("Lỗi Phù: Vui lòng chọn phân độ phù!");
+        }
+    }
+
+    // 3. ĐAU NIPS (Sơ sinh)
+    function calculateNIPS() {
+        try {
+            const score = getRadioValue('nips_face') + getRadioValue('nips_cry') + getRadioValue('nips_breath') + getRadioValue('nips_arm') + getRadioValue('nips_leg') + getRadioValue('nips_alert');
+            
+            let classification = "";
+            let riskClass = "";
+
+            if (score >= 0 && score <= 2) {
+                classification = "không đau, đau nhẹ";
+                riskClass = "low-risk";
+            } else if (score >= 3 && score <= 4) {
+                classification = "đau vừa";
+                riskClass = "moderate-risk";
+            } else if (score > 4) {
+                classification = "đau nghiêm trọng";
+                riskClass = "high-risk";
+            }
+            
+            calculatedScores['Đau NIPS'] = { score: `${score}/7`, classification: classification, action: '' };
+            updateResultDisplay('nips', `${score}/7`, classification, '', riskClass);
+        } catch (error) {
+            calculatedScores['Đau NIPS'] = { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' };
+            alert("Lỗi NIPS: Vui lòng chọn đầy đủ các mục!");
+        }
+    }
+
+    // 4. ĐAU NRS (Dạng số)
+    function calculateNRS() {
+        try {
+            const score = parseInt(document.getElementById('nrs_score').value);
+            const selectedOption = document.getElementById('nrs_score').options[document.getElementById('nrs_score').selectedIndex];
+            const description = selectedOption.text.split(' - ')[1].trim();
+            
+            let riskClass = "";
+             if (score >= 7) {
+                riskClass = "high-risk";
+            } else if (score >= 4) {
+                riskClass = "moderate-risk";
+            } else {
+                riskClass = "low-risk";
+            }
+
+            calculatedScores['Đau NRS'] = { score: `${score}/10`, classification: description, action: '' };
+            updateResultDisplay('nrs', `${score}/10`, description, '', riskClass);
+
+        } catch (error) {
+            calculatedScores['Đau NRS'] = { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' };
+            alert("Lỗi NRS: Vui lòng chọn mức điểm đau!");
+        }
+    }
+    
+    // 5. NGUY CƠ TÉ NGÃ MORSE
+    function calculateMORSE() {
+        try {
+            const score = getRadioValue('morse_history') + getRadioValue('morse_aid') + getRadioValue('morse_iv') + getRadioValue('morse_comorbid') + getRadioValue('morse_gait') + getRadioValue('morse_mental');
+            
+            let classification = "";
+            let riskClass = "";
+            let action = "theo dõi thường xuyên";
+
+            if (score < 25) {
+                classification = "nguy cơ thấp";
+                riskClass = "low-risk";
+            } else if (score >= 25 && score <= 44) {
+                classification = "nguy cơ trung bình";
+                riskClass = "moderate-risk";
+            } else if (score >= 45) {
+                classification = "nguy cơ cao";
+                riskClass = "high-risk";
+            }
+            
+            calculatedScores['Té Ngã MORSE'] = { score: `${score}`, classification: classification, action: action };
+            updateResultDisplay('morse', `${score}`, classification, action, riskClass);
+        } catch (error) {
+            calculatedScores['Té Ngã MORSE'] = { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' };
+            alert("Lỗi MORSE: Vui lòng chọn đầy đủ các mục!");
+        }
+    }
+
+    // 6. LOÉT TỲ ĐÈ BRADEN
+    function calculateBRADEN() {
+        try {
+            const score = getRadioValue('braden_sensory') + getRadioValue('braden_moisture') + getRadioValue('braden_activity') + getRadioValue('braden_mobility') + getRadioValue('braden_nutrition') + getRadioValue('braden_friction');
+            
+            let classification = "";
+            let action = "";
+            let riskClass = "";
+
+            if (score <= 12) {
+                classification = "nguy cơ cao";
+                action = "đặt đệm chống loét hoặc nệm khí, thay đổi tư thế 2 giờ/lần, đảm bảo dinh dưỡng đầy đủ.";
+                riskClass = "high-risk";
+            } else if (score >= 13 && score <= 14) {
+                classification = "nguy cơ trung bình";
+                action = "theo dõi thường xuyên tình trạng da, sử dụng đệm hỗ trợ, thay đổi tư thế 2-3 giờ/lần.";
+                riskClass = "moderate-risk";
+            } else if (score >= 15 && score <= 18) {
+                classification = "nguy cơ thấp";
+                action = "duy trì chăm sóc da cơ bản, thay đổi tư thế 3-4 giờ/lần, đánh giá định kỳ nguy cơ.";
+                riskClass = "low-risk";
+            } else {
+                 classification = "không có nguy cơ rõ ràng";
+                 action = "duy trì chăm sóc da cơ bản.";
+                 riskClass = "low-risk";
+            }
+            
+            calculatedScores['Loét Tỳ Đè BRADEN'] = { score: `${score}/23`, classification: classification, action: action };
+            updateResultDisplay('braden', `${score}/23`, classification, action, riskClass);
+        } catch (error) {
+            calculatedScores['Loét Tỳ Đè BRADEN'] = { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' };
+            alert("Lỗi BRADEN: Vui lòng chọn đầy đủ các mục!");
+        }
+    }
+    
+    // 7. VIP SCORE (Viêm tĩnh mạch)
+    function calculateVIP() {
+        try {
+            const score = getRadioValue('vip_score');
+            
+            let classification = "";
+            let action = "";
+            let riskClass = "";
+
+            if (score === 0) {
+                classification = "vị trí đặt kim luồn tĩnh mạch bình thường";
+                action = "theo dõi tiếp và đánh giá vị trí đặt kim luồn tĩnh mạch mỗi ca.";
+                riskClass = "low-risk";
+            } else if (score === 1) {
+                classification = "có thể là dấu hiệu đầu tiên viêm tĩnh mạch";
+                action = "rút kim luồn, báo bác sĩ, đặt lại kim luồn mới, theo dõi.";
+                riskClass = "moderate-risk";
+            } else if (score === 2) {
+                classification = "giai đoạn sớm viêm tĩnh mạch";
+                action = "rút kim luồn, báo bác sĩ, đặt lại kim luồn mới, theo dõi.";
+                riskClass = "moderate-risk";
+            } else if (score === 3) {
+                classification = "giai đoạn giữa viêm tĩnh mạch";
+                action = "rút kim luồn, báo bác sĩ và thực hiện y lệnh nếu có.";
+                riskClass = "high-risk";
+            } else if (score === 4) {
+                classification = "giai đoạn tiến triển viêm tĩnh mạch/ giai đoạn đầu viêm tĩnh mạch huyết khối";
+                action = "rút kim luồn, báo bác sĩ và thực hiện y lệnh.";
+                riskClass = "high-risk";
+            } else if (score === 5) {
+                classification = "viêm tĩnh mạch huyết khối";
+                action = "rút kim luồn, báo bác sĩ và thực hiện y lệnh.";
+                riskClass = "high-risk";
+            }
+
+            calculatedScores['VIP Score'] = { score: `${score}/5`, classification: classification, action: action };
+            updateResultDisplay('vip', `${score}/5`, classification, action, riskClass);
+        } catch (error) {
+            calculatedScores['VIP Score'] = { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' };
+            alert("Lỗi VIP: Vui lòng chọn đầy đủ các mục!");
+        }
+    }
+
+    // 8. NEWS
+    function calculateNEWS() {
+        try {
+            // Lấy giá trị từ input
+            const rr = parseFloat(document.getElementById('news_rr').value);
+            const spo2 = parseFloat(document.getElementById('news_spo2').value);
+            const temp = parseFloat(document.getElementById('news_temp').value);
+            const sbp = parseFloat(document.getElementById('news_sbp').value);
+            const hr = parseFloat(document.getElementById('news_hr').value);
+            
+            // Kiểm tra Input
+            if (isNaN(rr) || isNaN(spo2) || isNaN(temp) || isNaN(sbp) || isNaN(hr)) {
+                throw new Error("Dữ liệu nhập không hợp lệ");
+            }
+
+            // Lấy giá trị Radio
+            const o2 = getRadioValue('news_o2');
+            const loc = getRadioValue('news_loc');
+            
+            // --- TÍNH ĐIỂM TỪ GIÁ TRỊ NHẬP VÀO ---
+            let rr_score = 0;
+            if (rr <= 8) rr_score = 3; else if (rr >= 9 && rr <= 11) rr_score = 1; else if (rr >= 12 && rr <= 20) rr_score = 0; else if (rr >= 21 && rr <= 24) rr_score = 2; else if (rr >= 25) rr_score = 3;
+            
+            let spo2_score = 0;
+            if (spo2 <= 91) spo2_score = 3; else if (spo2 >= 92 && spo2 <= 93) spo2_score = 2; else if (spo2 >= 94 && spo2 <= 95) spo2_score = 1; else if (spo2 >= 96) spo2_score = 0;
+            
+            let temp_score = 0;
+            if (temp <= 35.0) temp_score = 3; else if (temp >= 35.1 && temp <= 36.0) temp_score = 1; else if (temp >= 36.1 && temp <= 38.0) temp_score = 0; else if (temp >= 38.1 && temp <= 39.0) temp_score = 1; else if (temp >= 39.1) temp_score = 2;
+            
+            let sbp_score = 0;
+            if (sbp <= 90) sbp_score = 3; else if (sbp >= 91 && sbp <= 100) sbp_score = 2; else if (sbp >= 101 && sbp <= 110) sbp_score = 1; else if (sbp >= 111 && sbp <= 219) sbp_score = 0; else if (sbp >= 220) sbp_score = 3;
+            
+            let hr_score = 0;
+            if (hr <= 40) hr_score = 3; else if (hr >= 41 && hr <= 50) hr_score = 1; else if (hr >= 51 && hr <= 90) hr_score = 0; else if (hr >= 91 && hr <= 110) hr_score = 1; else if (hr >= 111 && hr <= 130) hr_score = 2; else if (hr >= 131) hr_score = 3;
+            
+            const score = rr_score + spo2_score + o2 + temp_score + sbp_score + hr_score + loc;
+            const maxCriteriaScore = Math.max(rr_score, spo2_score, o2, temp_score, sbp_score, hr_score, loc); 
+
+            let classification = "";
+            let action = "";
+            let riskClass = "";
+
+            if (score >= 7) {
+                classification = "cao (đáp ứng cấp cứu)";
+                action = "ngay lập tức thông báo bác sĩ, cần hỗ trợ hồi sức, cân nhắc chuyển ICU, theo dõi liên tục.";
+                riskClass = "high-risk";
+            } else if (score >= 5 && score <= 6) {
+                classification = "trung bình (đáp ứng khẩn cấp)";
+                action = "ngay lập tức thông báo bác sĩ, chuyển khu vực có thiết bị theo dõi, theo dõi tối thiểu mỗi 01 giờ.";
+                riskClass = "moderate-risk";
+            } else if (maxCriteriaScore === 3 && score <= 4) {
+                classification = "trung bình - thấp (điểm tối đa 3 ở 1 tiêu chí)";
+                action = "thông báo bác sĩ điều trị, đánh giá lại và quyết định kế hoạch can thiệp, theo dõi tối thiểu 1 giờ.";
+                riskClass = "moderate-risk";
+            } else if (score >= 1 && score <= 4) {
+                classification = "thấp";
+                action = "theo dõi thiểu mỗi 4-6 giờ.";
+                riskClass = "low-risk";
+            } else if (score === 0) {
+                classification = "thấp";
+                action = "theo dõi tối thiểu 12 giờ.";
+                riskClass = "low-risk";
+            }
+
+            calculatedScores['NEWS Score'] = { score: `${score}/21`, classification: classification, action: action };
+            updateResultDisplay('news', `${score}/21`, classification, action, riskClass);
+
+        } catch (error) {
+            calculatedScores['NEWS Score'] = { score: 'Chưa đánh giá', classification: 'Chưa đánh giá', action: 'Chưa đánh giá' };
+            alert("Lỗi NEWS: Vui lòng nhập dữ liệu hợp lệ và chọn đầy đủ các mục!");
+        }
+    }
+
+
+    // --- HÀM TỔNG HỢP CUỐI CÙNG ---
+    function calculateAndSummarize() {
+        // Thực hiện tính toán lại tất cả các thang điểm để đảm bảo dữ liệu mới nhất
+        calculateGCS();
+        calculateEdema();
+        calculateNIPS();
+        calculateNRS();
+        calculateMORSE(); 
+        calculateBRADEN();
+        calculateVIP();
+        calculateNEWS();
+        
+        let tableHTML = `
+            <table id="summary-table">
+                <thead>
+                    <tr>
+                        <th>Thang điểm</th>
+                        <th>Điểm số</th>
+                        <th>Phân loại/Đánh giá</th>
+                        <th>Hành động can thiệp/Ghi chú</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        for (const scaleName in calculatedScores) {
+            const result = calculatedScores[scaleName];
+            
+            let rowClass = '';
+            
+            // Xử lý các hàng chưa đánh giá
+            if (result.score === 'Chưa đánh giá') {
+                rowClass = 'moderate-risk'; // Dùng moderate-risk để giữ màu nền trung tính cho "Chưa đánh giá"
+                
+                // Cập nhật lại các trường trong object cho mục tổng kết
+                result.classification = 'chưa đánh giá';
+                result.action = 'vui lòng quay lại tab tương ứng để đánh giá';
+            } else {
+                // Thiết lập màu sắc hàng dựa trên nguy cơ
+                if (result.classification.includes("cao") || result.classification.includes("nghiêm trọng") || result.classification.includes("hôn mê")) {
+                    rowClass = 'high-risk';
+                } else if (result.classification.includes("trung bình") || result.classification.includes("rối loạn ý thức")) {
+                    rowClass = 'moderate-risk';
+                } else {
+                    rowClass = 'low-risk';
+                }
+            }
+            
+            // Viết hoa chữ cái đầu tiên cho kết quả hiển thị trong bảng
+            const finalClassification = capitalizeFirstLetter(result.classification);
+            const finalAction = capitalizeFirstLetter(result.action);
+
+            // TÁI LẠI QUY TẮC ĐƠN SẮC TRONG BẢNG: Chỉ áp dụng rowClass cho mục đích logic (chưa đánh giá),
+            // nhưng không dùng cho màu nền/chữ (đã định nghĩa trong CSS: #summary-table .high-risk, v.v. bị vô hiệu hóa)
+            // Tuy nhiên, đối với dòng "Chưa đánh giá" (moderate-risk), tôi sẽ giữ màu nền trắng/xám nhẹ.
+
+            tableHTML += `
+                <tr class="${rowClass}">
+                    <td><strong>${scaleName}</strong></td>
+                    <td>${result.score}</td>
+                    <td>${finalClassification}</td>
+                    <td>${finalAction}</td>
+                </tr>
+            `;
+        }
+
+        tableHTML += `</tbody></table>`;
+
+        // Hiển thị bảng tổng hợp và chuyển tab
+        document.getElementById('summary-result-container').innerHTML = tableHTML;
+        document.getElementById('summary').classList.add('active');
+        document.querySelector('a[href="#summary"]').classList.add('active');
+    }
+
+</script>
+</body>
+</html>
